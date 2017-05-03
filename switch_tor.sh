@@ -1,3 +1,9 @@
+# Make sure only root can run this script
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
+
 #rc-service iptables stop
 #rc-service ip6tables stop
 #rc-service iptables start
@@ -13,7 +19,7 @@ ip6tables -X
 echo "nameserver ::1, 127.0.0.1" > /etc/resolv.conf
 iptables -t nat -A OUTPUT -p TCP --dport 53 -j DNAT --to-destination 127.0.0.1:9053
 iptables -t nat -A OUTPUT -p UDP --dport 53 -j DNAT --to-destination 127.0.0.1:9053
-iptables -t nat -A OUTPUT -p TCP -m owner ! --uid-owner tor -j DNAT --to-destination 127.0.0.1:9040 
+iptables -t nat -A OUTPUT -p TCP -m owner ! --uid-owner tor -j DNAT --to-destination 127.0.0.1:9040
 ip6tables -t nat -A OUTPUT -p TCP --dport 53 -j DNAT --to-destination [::1]:9054
 ip6tables -t nat -A OUTPUT -p UDP --dport 53 -j DNAT --to-destination [::1]:9054
 ip6tables -t nat -A OUTPUT -p TCP -m owner ! --uid-owner tor -j DNAT --to-destination [::1]:9041

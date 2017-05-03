@@ -12,7 +12,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 #We setup a free environment in case anything failed
-rm -rf deblob deblob.sign deblob-check deblob-check.sign initramfs initrd.img &> /dev/null 
+rm -rf deblob deblob.sign deblob-check deblob-check.sign initramfs initrd.img &> /dev/null
 echo "Please verify that the given kernel (using eselect kernel list) is correctly set up"
 fullversion=$(file /usr/src/linux | sed -e 's#.*linux-\(\)#\1#')
 version=${fullversion%%-*}
@@ -46,7 +46,7 @@ fi
 
 #We compile the kernel and install it
 #In some cases boot might not be booted if on another drive so let's do that
-mount $BOOT 
+mount $BOOT
 gpg --verify $BOOT/config.sig $BOOT/config || { echo 'Failed to verify signature of linux kernel config! THIS IS A RED FLAG' ; exit 1; }
 cp $BOOT/config /usr/src/linux/.config
 make olddefconfig
@@ -79,15 +79,16 @@ cd $WORKDIR
 mv $initr initrd.img.xz
 unxz initrd.img.xz
 mkdir initramfs && cd initramfs
-cpio -vid < ../initrd.img
-rm ../initrd.img
-cp /etc/keyfile etc/
-find . -print0 | cpio --null -ov --format=newc | xz -e --check=none -z -f -9 > ../initrd.img 
+mkdir etc && cp /etc/keyfile etc/
+
+find . -print | cpio --quiet -o -H newc --append -F ../initrd.img
 cd ..
+xz -e --check=none -z -f -9 initrd.img
+
 rm -rf initramfs
 
 #We sign and we're done for
-cp initrd.img $BOOT/initrd.img
+cp initrd.img.xz $BOOT/initrd.img
 rm $BOOT/initrd.img.sig
 gpg --detach-sign $BOOT/initrd.img
 rm -rf initrd.img deblob-check deblob deblob-check.sign deblob.sign
