@@ -15,7 +15,7 @@ fi
 rm -rf deblob deblob.sign deblob-check deblob-check.sign initramfs initrd.img &> /dev/null
 echo "Please verify that the given kernel (using eselect kernel list) is correctly set up"
 fullversion=$(file /usr/src/linux | sed -e 's#.*linux-\(\)#\1#')
-version=${fullversion%%-*}
+version=$(echo ${fullversion%%-*} | sed 's/\.0//')
 mainversion=$(echo $version | cut -d '.' -f1-2)
 echo "Using linux version" $version
 read
@@ -88,7 +88,7 @@ xz -e --check=none -z -f -9 initrd.img
 rm -rf initramfs
 
 #We sign and we're done for
-cp initrd.img.xz $BOOT/initrd.img
+mv initrd.img.xz $BOOT/initrd.img
 rm $BOOT/initrd.img.sig
 gpg --detach-sign $BOOT/initrd.img
 rm -rf initrd.img deblob-check deblob deblob-check.sign deblob.sign
