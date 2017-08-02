@@ -1,0 +1,5 @@
+Available kernel symlink targets:
+  [1]   linux-4.11.7-gentoo
+  [2]   linux-4.12.10-gentoo
+  [3]   linux-4.12.1-gentoo
+  [4]   linux-4.12.2-gentoo *

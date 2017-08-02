@@ -1,0 +1,3 @@
+0 0 * * * /usr/bin/eix-sync
+30 0 * * * /usr/bin/glsa-check --list ; /usr/bin/emerge -uDN @world && emerge @preserved-rebuild && revdep-rebuild && emerge --depclean && revdep-rebuild
+
