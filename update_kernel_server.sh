@@ -11,9 +11,18 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+fullversion=$(file /usr/src/linux | sed -e 's#.*linux-\(\)#\1#')
+realversion=$(echo linux-$fullversion)
+version=$(echo ${fullversion%%-*} | sed 's/\.0//')
+mainversion=$(echo $version | cut -d '.' -f1-2)
+
 #Nope this is totally NOT over-engineering
 latest_version=$(eselect kernel list | grep linux | sed -e 's#.*linux-\(\)#\1#' | sort -V | sed -e '$!d' | sed s/\*// | awk '$0="linux-"$0')
-
+#I swear everything else failed
+if [ $(echo $realversion) == $(echo $latest_version) ]; then
+    echo "Hey last kernel, gz m8, time to get a break"
+    exit 1
+fi
 eselect kernel set $latest_version 
 #We setup a free environment in case anything failed
 fullversion=$(file /usr/src/linux | sed -e 's#.*linux-\(\)#\1#')
@@ -35,9 +44,11 @@ make install
 system_map="$BOOT/System.map-$fullversion"
 vmlinuz="$BOOT/vmlinuz-$fullversion"
 config="$BOOT/config-$fullversion"
+initr="$BOOT/initramfs-genkernel-$ARCH-$fullversion"
 mv $system_map $BOOT/System.map
 mv $vmlinuz $BOOT/vmlinuz
 mv $config $BOOT/config
+mv $initr $BOOT/initrd.img
 
 #During make install linux appended a old, it becomes useless now
 rm $BOOT/*.old
