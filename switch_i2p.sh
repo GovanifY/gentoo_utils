@@ -13,7 +13,7 @@ iptables  -X
 ip6tables -F
 ip6tables -X
 #OpenNIC server, change if dns fails
-echo "nameserver 88.175.188.50" > /etc/resolv.conf
+echo "nameserver 51.255.48.78" > /etc/resolv.conf
 service tor stop
 service NetworkManager stop
 service NetworkManager start
